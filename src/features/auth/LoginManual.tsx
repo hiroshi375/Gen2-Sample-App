@@ -14,6 +14,7 @@ export default function LoginManual({ onSignInSuccess }: LoginManualProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [confirmCode, setConfirmCode] = useState('');
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [username, setUsername] = useState('');
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -23,7 +24,12 @@ export default function LoginManual({ onSignInSuccess }: LoginManualProps) {
 
     setIsLoading(true);
     try {
-      const result = await signIn({ username: email, password });
+      const result = await signIn({ username: username,
+                                    password,
+                                    options: {
+                                        authFlowType: 'USER_PASSWORD_AUTH'
+                                    }
+     });
       console.log('Sign In Success:', result);
       onSignInSuccess?.();
     } catch (e: any) {
@@ -49,6 +55,7 @@ export default function LoginManual({ onSignInSuccess }: LoginManualProps) {
           userAttributes: {
             email,
           },
+
         },
       });
       console.log('Sign Up Success:', result);
@@ -70,13 +77,17 @@ export default function LoginManual({ onSignInSuccess }: LoginManualProps) {
     setIsLoading(true);
     try {
       const result = await confirmSignUp({
-        username: email,
+        username: username,
         confirmationCode: confirmCode,
       });
       console.log('Confirm Sign Up Success:', result);
       setNeedsConfirmation(false);
       // 確認後、サインインを試みる
-      const signInResult = await signIn({ username: email, password });
+      const signInResult = await signIn({ username: username, password,
+        options: {
+          authFlowType: 'USER_PASSWORD_AUTH'
+        }
+      });
       console.log('Auto Sign In Success:', signInResult);
       onSignInSuccess?.();
     } catch (e: any) {
@@ -126,6 +137,18 @@ export default function LoginManual({ onSignInSuccess }: LoginManualProps) {
       <Text style={{ marginBottom: 20, fontSize: 20, fontWeight: 'bold' }}>
         {isSignUp ? 'サインアップ' : 'ログイン'}
       </Text>
+
+      <TextInput
+        placeholder="ユーザー名（UUID）"
+        value={username}
+        onChangeText={setUsername}
+        style={{
+            borderWidth: 1,
+            borderColor: '#ccc',
+            padding: 10,
+            marginBottom: 10,
+        }}
+      />
 
       <TextInput
         placeholder="メールアドレス"
