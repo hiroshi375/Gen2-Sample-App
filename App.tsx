@@ -1,15 +1,46 @@
-import { Amplify } from 'aws-amplify';
-import { View, Text, Button } from 'react-native';
-import outputs from './amplify_outputs.json';
+// 👇 最優先で読み込む（ここが一番重要）
+import './amplifyConfig';
+
+import { useEffect, useState } from 'react';
+import { View } from 'react-native';
+import { getCurrentUser } from 'aws-amplify/auth';
 import TodoScreen from './src/features/todo/TodoScreen';
-
-console.log('BEFORE CONFIGURE')
-
-Amplify.configure(outputs);
-
-console.log('AFTER CONFIGURE')
-console.log('Amplify object:', Amplify)
+import LoginManual from './src/features/auth/LoginManual';
 
 export default function App() {
-  return <TodoScreen />;
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    checkUser();
+  }, []);
+
+  const checkUser = async () => {
+    try {
+      const currentUser = await getCurrentUser();
+      console.log('Current User:', currentUser);
+      setUser(currentUser);
+    } catch (e) {
+      console.log('No user logged in:', e);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignOut = () => {
+    setUser(null);
+  };
+
+  if (isLoading) {
+    return <View style={{ flex: 1 }} />;
+  }
+
+  return <View style={{ flex: 1 }}>
+    {user ? (
+      <TodoScreen onSignOut={handleSignOut} />
+    ) : (
+      <LoginManual onSignInSuccess={checkUser} />
+    )}
+  </View>;
 }

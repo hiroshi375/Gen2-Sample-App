@@ -1,21 +1,37 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Button } from 'react-native';
 import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '../../../amplify/data/resource';
-import { Amplify } from 'aws-amplify'
+import { signOut } from 'aws-amplify/auth';
 
-//console.log('TodoScreen Amplify:', Amplify)
+// クライアントは最初に使うときに遅延初期化
+let clientInstance: any = null;
+const getClient = () => {
+  if (!clientInstance) {
+    clientInstance = generateClient();
+  }
+  return clientInstance;
+};
 
-const client = generateClient<Schema>();
+// 手動で型定義（今はこれが一番安定）
+type Todo = {
+  id: string;
+  content: string | null;
+  isDone: boolean | null;
+  createdAt: string;
+  updatedAt: string;
+};
 
-type Todo = Schema['Todo']['type'];
+interface TodoScreenProps {
+  onSignOut?: () => void;
+}
 
-export default function TodoScreen() {
+export default function TodoScreen({ onSignOut }: TodoScreenProps) {
   const [todos, setTodos] = useState<Todo[]>([]);
 
   const load = async () => {
     try {
-      const res = await client.models.Todo.list();
+      const client = getClient();
+      const res = await (client.models.Todo as any).list();
       console.log('TODO LIST RESPONSE:', res);
       setTodos(res.data);
     } catch (e) {
@@ -26,7 +42,8 @@ export default function TodoScreen() {
   // 👇ここに追加（これが正しい場所）
   const createTodo = async () => {
     try {
-      await client.models.Todo.create({
+      const client = getClient();
+      await (client.models.Todo as any).create({
         content: 'first todo',
         isDone: false,
       });
@@ -37,8 +54,18 @@ export default function TodoScreen() {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      onSignOut?.();
+    } catch (e) {
+      console.log('Sign Out Error:', e);
+    }
+  };
+
   // 初回確認ログ（ここが重要）
   useEffect(() => {
+    const client = getClient();
     console.log('MODELS:', client.models);
     load();
   }, []);
@@ -52,6 +79,10 @@ export default function TodoScreen() {
     }}
     >
       {/* ここに追加 */}
+      <View>
+        <Button title="Sign Out" onPress={handleSignOut} />
+      </View>
+
       <Button title="Create Todo" onPress={createTodo} />
 
       <Button title="Reload" onPress={load} />
