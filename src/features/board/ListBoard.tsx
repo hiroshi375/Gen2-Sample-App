@@ -1,10 +1,11 @@
 import { useEffect, useState,useCallback } from 'react';
 import { View , FlatList, Image } from 'react-native';
-import { TextInput, Button, Card, Text, FAB } from 'react-native-paper';
+import { TextInput, Button, Card, Text, FAB ,Appbar} from 'react-native-paper';
 import { useNavigation,useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../../../amplify/data/resource';
+import { signOut } from 'aws-amplify/auth';
 import { BoardComponent } from '../../../ui-components';
 
 const client = generateClient<Schema>();
@@ -174,6 +175,21 @@ function ListBoard() {
         }}
         onPress={() => navigation.navigate('CreateBoard')}
       />
+      {/* サインアウト */}
+      <Button
+        mode="outlined"
+        onPress={async () => {
+            try {
+            await signOut();
+            } catch (e) {
+            console.log('sign out error:', e);
+            }
+        }}
+        style={{ marginTop: 10 }}
+        >
+        サインアウト
+      </Button>
+
     </View>
   );
 }
