@@ -22,10 +22,10 @@ type Todo = {
 };
 
 interface TodoScreenProps {
-  onSignOut?: () => void;
+  user: any;
 }
 
-export default function TodoScreen({ onSignOut }: TodoScreenProps) {
+export default function TodoScreen({ user }: TodoScreenProps) {
   const [todos, setTodos] = useState<Todo[]>([]);
 
   const load = async () => {
@@ -57,7 +57,6 @@ export default function TodoScreen({ onSignOut }: TodoScreenProps) {
   const handleSignOut = async () => {
     try {
       await signOut();
-      onSignOut?.();
     } catch (e) {
       console.log('Sign Out Error:', e);
     }
