@@ -1,5 +1,8 @@
 {
   "ios": {
     "bundleIdentifier": "com.anonymous.gen2-sample-app"
+  },
+  "android": {
+    "package": "com.anonymous.gen2sampleapp"
   }
 }

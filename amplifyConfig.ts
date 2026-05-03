@@ -7,16 +7,6 @@ console.log('=== Amplify Config Start ===');
 console.log('Auth Config:', outputs.auth);
 console.log('Data Config:', outputs.data);
 
-Amplify.configure({
-  Auth: {
-    Cognito: {
-      userPoolId: outputs.auth.user_pool_id,
-      userPoolClientId: outputs.auth.user_pool_client_id,
-      loginWith: {
-        email: true,
-      },
-    },
-  },
-});
+Amplify.configure(outputs);
 
 console.log('=== Amplify Configured ===');
