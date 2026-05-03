@@ -166,7 +166,12 @@ function ListBoard() {
       {/* FAB（右下ボタン） */}
       <FAB
         icon="plus"
-        style={{ position: 'absolute', right: 16, bottom: 16 }}
+        style={{
+            position: 'absolute',
+            right: 16,
+            bottom: 16,
+            zIndex: 100,
+        }}
         onPress={() => navigation.navigate('CreateBoard')}
       />
     </View>

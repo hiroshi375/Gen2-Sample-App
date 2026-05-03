@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import { View, Alert } from 'react-native';
+import { TextInput, Button, Card, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { generateClient } from 'aws-amplify/data';
@@ -58,6 +59,9 @@ function CreateBoard() {
       setFmsg("");
       setFemail("");
       setFimg("");
+
+      navigation.goBack();
+
     } catch (e) {
       console.error(e);
       Alert.alert("エラー", "投稿に失敗しました。");
@@ -65,43 +69,50 @@ function CreateBoard() {
   };
 
   return (
-    <View style={{ padding: 16 }}>
-      <Text style={{ fontSize: 18, marginBottom: 10 }}>
-        Create new Board:
-      </Text>
+    <View style={{ flex: 1,padding: 16 }}>
+      <Card>
+        <Card.Content>
+            <Text variant="titleLarge">Create Board</Text>
+            <TextInput
+                label="Message"
+                value={fmsg}
+                onChangeText={setFmsg}
+                mode="outlined"
+                style={{ marginTop: 10 }}
+            />
+            <TextInput
+                label="Email"
+                value={femail}
+                onChangeText={setFemail}
+                mode="outlined"
+                style={{ marginTop: 10 }}
+            />
+            <TextInput
+                label="Image URL"
+                value={fimg}
+                onChangeText={setFimg}
+                mode="outlined"
+                style={{ marginTop: 10 }}
+            />
 
-      {/* message */}
-      <Text>Message</Text>
-      <TextInput
-        value={fmsg}
-        onChangeText={setFmsg}
-        style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
-      />
+            <Button
+                mode="contained"
+                onPress={onCreate}
+                style={{ marginTop: 20 }}
+            >
+            Create
+            </Button>
 
-      {/* email */}
-      <Text>Email</Text>
-      <TextInput
-        value={femail}
-        onChangeText={setFemail}
-        style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
-      />
+            {/* 画面遷移（Create → List）ボタン */}
+            <Button
+                mode="contained"
+                onPress={() => navigation.goBack()}
+                style={{ marginTop: 10 }}>
+            戻る
+            </Button>
+        </Card.Content>
+      </Card>
 
-      {/* image */}
-      <Text>Image(URL)</Text>
-      <TextInput
-        value={fimg}
-        onChangeText={setFimg}
-        style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
-      />
-
-      {/* button */}
-      <Button title="Create" onPress={onCreate} />
-
-      {/* 画面遷移（Create → List）ボタン */}
-      <Button
-          title="戻る"
-          onPress={() => navigation.goBack()}
-      />
     </View>
   );
 }
