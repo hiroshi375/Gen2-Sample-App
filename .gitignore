@@ -1,6 +1,43 @@
 # amplify
-node_modules
-.amplify
+amplify/.config/local-*
+amplify/.config/project-local.json
+amplify/.config/local-env-info.json
+amplify/#current-cloud-backend/
+amplify/.temp/
+amplify/team-provider-info.json
 amplify_outputs*
+.amplify
 amplifyconfiguration*
+
+# dependencies
+node_modules/
+node_modules 2/
+tmp_delete/
+
+# Expo
 .expo/
+.expo-shared/
+
+# logs
+npm-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# env
+.env*
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+*.keystore
+
+# iOS
+ios/Pods/
+ios/build/
+*.xcworkspace
+*.xcuserdata
+Podfile.lock

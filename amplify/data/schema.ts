@@ -13,6 +13,7 @@ export const schema = a.schema({
     .model({
       name: a.string().required(),
       email: a.email().required(),
+      userId: a.string(),
       age: a.integer(),
       tel: a.phone(),
       boards: a.hasMany('Board', 'personID'),

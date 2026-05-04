@@ -47,12 +47,12 @@ function ListBoard() {
       } as any;
 
       result = await client.models.Board.list({ filter });
-      console.log("取得結果:", result);
-      console.log("Boardデータ本体:", result.data);
+      //console.log("取得結果:", result);
+      //console.log("Boardデータ本体:", result.data);
     } else {
       result = await client.models.Board.list();
-      console.log("取得結果:", result);
-      console.log("Boardデータ本体:", result.data);
+      //console.log("取得結果:", result);
+      //console.log("Boardデータ本体:", result.data);
     }
 
     setItems(result.data);
@@ -85,6 +85,9 @@ function ListBoard() {
                 } as any);
             }
         }
+
+        // ✅ 初回データ取得
+        load();
     };
 
     init();
@@ -92,14 +95,14 @@ function ListBoard() {
     // -----------------------------
     // リアルタイム監視（observeの代替）
     // -----------------------------
-    const sub = client.models.Board.observeQuery().subscribe({
-      next: ({ items }) => {
-        setItems(items);
-      },
-    });
+    //const sub = client.models.Board.observeQuery().subscribe({
+    //  next: ({ items }) => {
+    //    setItems(items);
+    //  },
+    //});
 
-    return () => sub.unsubscribe();
-  }, [find]);
+    //return () => sub.unsubscribe();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -108,7 +111,7 @@ function ListBoard() {
         load();
 
         return () => {};
-    }, [find])
+    }, [])
   );
 
   return (
