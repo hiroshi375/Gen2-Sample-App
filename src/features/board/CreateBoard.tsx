@@ -33,12 +33,16 @@ function CreateBoard() {
   // -----------------------------
   useEffect(() => {
     const fetchPeople = async () => {
-      const result = await client.models.Person.list();
+      const result = await client.models.Person.list({
+        authMode: 'userPool',
+    });
       setPeople(result.data);
     };
 
     fetchPeople();
-  }, []);
+    console.log("selectedPerson updated:", JSON.stringify(selectedPerson, null, 2)); // 👈 追加
+  }, [selectedPersonId]);
+
 
   // -----------------------------
   // 作成処理
@@ -61,24 +65,37 @@ function CreateBoard() {
         return;
       }
 
-      // -----------------------------
-      // ② Board作成
-      // -----------------------------
-      await client.models.Board.create({
-        message: fmsg,
-        name: user.name,
-        image: fimg === "" ? null : fimg,
-        personID: user.id,
-      });
+        // -----------------------------
+        // ② Board作成
+        // -----------------------------
+        try {
+            const result = await client.models.Board.create(
+                {
+                    message: fmsg,
+                    name: user.name,
+                    image: fimg === "" ? null : fimg,
+                    personID: user.id,
+                },
+                {
+                    authMode: 'userPool', // 👈 これを追加
+                }
+            );
+            console.log("Board created successfully", result);
+            console.log("FULL RESULT:", JSON.stringify(result, null, 2));
+            Alert.alert("成功", "メッセージを投稿しました。");
 
-      Alert.alert("成功", "メッセージを投稿しました。");
+        } catch (e) {
+            console.error("Error creating Board:", e);
+            Alert.alert("エラー", "Boardの作成に失敗しました。");
+            return;
+        }
 
-      // 入力リセット
-      setFmsg("");
-      setFimg("");
-      setSelectedPersonId("");
+        // 入力リセット
+        setFmsg("");
+        setFimg("");
+        setSelectedPersonId("");
 
-      navigation.goBack();
+        navigation.goBack();
 
     } catch (e) {
       console.error(e);
@@ -101,7 +118,7 @@ function CreateBoard() {
                 mode="outlined"
                 style={{ marginTop: 10 }}
             />
-            <Text style={{ color: 'red' }}>
+            <Text style={{ color: 'red', fontSize: 10 }}>
               {!fmsg?.trim() && "メッセージを入力してください"}
             </Text>
             {/* 👇 ユーザー選択 */}
@@ -123,7 +140,7 @@ function CreateBoard() {
                         onPress={() => {
                             console.log("選択:", p.name); // 👈 追加
                             //setSelectedPerson(p);   // 👈 これ追加
-                            console.log("selectedPerson:", selectedPerson);
+                            //console.log("selectedPerson:", selectedPerson);
                             setSelectedPersonId(p.id);
                             setExpanded(false); // 選択後にアコーディオンを閉じる
                         }}
@@ -141,7 +158,7 @@ function CreateBoard() {
                 ))}
             {/*</List.Section>*/}
             </List.Accordion>
-            <Text style={{ color: 'red' }}>
+            <Text style={{ color: 'red', fontSize: 10 }}>
                 {!selectedPersonId && "ユーザーを選択してください"}
             </Text>
             <TextInput

@@ -13,6 +13,7 @@ amplifyconfiguration*
 node_modules/
 node_modules 2/
 tmp_delete/
+node_modules_old/
 
 # Expo
 .expo/

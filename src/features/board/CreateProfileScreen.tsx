@@ -29,14 +29,28 @@ function CreateProfileScreen({ onComplete }: Props) {
         userId: user.userId,
     });
 
-    const result = await client.models.Person.create({
-      name: name,
-      email: email,
-      userId: userId,
-    });
+    const result = await client.models.Person.create(
+{
+            name: name,
+            email: email,
+            userId: userId,
+        },
+        {
+            authMode: 'userPool', // 👈 これを追加
+        }
+    );
     console.log("FULL RESULT:", JSON.stringify(result, null, 2));
+    // 👇 少し待つ（暫定）
+    //await new Promise(res => setTimeout(res, 500));
     // 画面リロード or state更新
-    onComplete(); // ← これでAppに通知
+    //const check = await client.models.Person.list({
+    //  filter: { userId: { eq: userId } },
+    //});
+    //if (check.data.length > 0) {
+    //    onComplete();
+    //}
+// 👇 無条件で戻す
+    onComplete();
   };
 
   return (
@@ -72,6 +86,3 @@ function CreateProfileScreen({ onComplete }: Props) {
 }
 
 export default CreateProfileScreen;
-
-
-

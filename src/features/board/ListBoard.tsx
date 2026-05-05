@@ -46,11 +46,11 @@ function ListBoard() {
         ],
       } as any;
 
-      result = await client.models.Board.list({ filter });
+      result = await client.models.Board.list({ filter, authMode: 'userPool' });
       //console.log("取得結果:", result);
       //console.log("Boardデータ本体:", result.data);
     } else {
-      result = await client.models.Board.list();
+      result = await client.models.Board.list({ authMode: 'userPool' });
       //console.log("取得結果:", result);
       //console.log("Boardデータ本体:", result.data);
     }
@@ -68,7 +68,9 @@ function ListBoard() {
         // -----------------------------
         // ① 初回ロード
         // -----------------------------
-        const result = await client.models.Board.list();
+        const result = await client.models.Board.list({
+            authMode: 'userPool',
+        });
 
         // -----------------------------
         // ② データが0件なら作成
@@ -107,11 +109,13 @@ function ListBoard() {
     //});
 
     //return () => sub.unsubscribe();
+
+    //signOut(); // 開発中だけ
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-        console.log("ListBoardフォーカスされた → 再取得");
+        console.log("useFocusEffect triggered");
 
         load();
 

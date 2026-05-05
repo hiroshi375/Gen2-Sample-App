@@ -7,7 +7,7 @@ export const schema = a.schema({
     isDone: a.boolean(),
   })
   .authorization((allow) => [
-    allow.owner()
+    allow.authenticated() // 認証ユーザーは全員アクセス可能
   ]),
   Person: a
     .model({
@@ -18,7 +18,9 @@ export const schema = a.schema({
       tel: a.phone(),
       boards: a.hasMany('Board', 'personID'),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [
+        allow.authenticated() // 認証ユーザーは全員アクセス可能
+    ]),
 
   Board: a
     .model({
@@ -28,7 +30,9 @@ export const schema = a.schema({
       personID: a.id().required(),
       person: a.belongsTo('Person', 'personID'),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [
+        allow.authenticated() // 認証ユーザーは全員アクセス可能
+    ]),
 
 });
 
