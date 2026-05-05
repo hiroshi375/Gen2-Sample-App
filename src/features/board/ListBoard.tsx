@@ -54,8 +54,13 @@ function ListBoard() {
       //console.log("取得結果:", result);
       //console.log("Boardデータ本体:", result.data);
     }
-
-    setItems(result.data);
+    // 👇 追加：新しい順にソート
+    const sorted = [...result.data].sort(
+        (a, b) =>
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime()
+    );
+    setItems(sorted);
   };
 
   useEffect(() => {

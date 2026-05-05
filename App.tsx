@@ -65,7 +65,13 @@ function App({ user }: { user: any }) {
       });
       console.log("Person list:", JSON.stringify(existing.data, null, 2)); // 👈 追加①
       if (existing.data.length > 0) {
+        console.log("すでに存在");
         console.log("Person name:", JSON.stringify(existing.data[0].name, null, 2)); // 👈 追加②
+
+        setHasProfile(existing.data.length > 0); // ← これが必要
+        setInitialized(true); // ← これも重要
+
+        return;
       }
       setHasProfile(existing.data.length > 0);
       setInitialized(true);

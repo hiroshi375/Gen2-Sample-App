@@ -1,7 +1,7 @@
 
-import { useState } from 'react';
+import { useEffect,useState } from 'react';
 import { View, Alert } from 'react-native';
-import { TextInput, Button, Card, Text } from 'react-native-paper';
+import { TextInput, Button, Card, Text, List } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { generateClient } from 'aws-amplify/data';
@@ -17,31 +17,49 @@ type RootStackParamList = {
 function CreateBoard() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'CreateBoard'>>();
   const [fmsg, setFmsg] = useState("");
-  const [femail, setFemail] = useState("");
+  //const [femail, setFemail] = useState("");
   const [fimg, setFimg] = useState("");
+
+  // 👇 追加：Person関連
+  const [people, setPeople] = useState<any[]>([]);
+  //const [selectedPersonId, setSelectedPersonId] = useState("");
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
+  // List.Accordionの展開状態管理
+  const [expanded, setExpanded] = useState(false);
+  // 選択されたPersonの情報を保持（確認用）
+  //const [selectedPerson, setSelectedPerson] = useState<any>(null);
+  // -----------------------------
+  // Person一覧取得
+  // -----------------------------
+  useEffect(() => {
+    const fetchPeople = async () => {
+      const result = await client.models.Person.list();
+      setPeople(result.data);
+    };
+
+    fetchPeople();
+  }, []);
 
   // -----------------------------
   // 作成処理
   // -----------------------------
   const onCreate = async () => {
     try {
-      // -----------------------------
-      // ① Person取得（email一致）
-      // -----------------------------
-      const result = await client.models.Person.list({
-        filter: {
-          email: { eq: femail },
-        },
-      });
-      console.log("取得結果:", result);
-      console.log("Personデータ本体:", result.data);
-
-      if (result.data.length !== 1) {
-        Alert.alert("エラー", "アカウントが見つかりませんでした。");
+      if (!fmsg || fmsg.trim() === "") {
+        Alert.alert("エラー", "メッセージは必須です");
         return;
       }
+      if (!selectedPersonId) {
+        Alert.alert("エラー", "ユーザーを選択してください");
+        return;
+      }
+      // Person取得（確認用）
+      const user = people.find(p => p.id === selectedPersonId);
 
-      const user = result.data[0];
+      if (!user) {
+        Alert.alert("エラー", "ユーザーが見つかりません");
+        return;
+      }
 
       // -----------------------------
       // ② Board作成
@@ -57,8 +75,8 @@ function CreateBoard() {
 
       // 入力リセット
       setFmsg("");
-      setFemail("");
       setFimg("");
+      setSelectedPersonId("");
 
       navigation.goBack();
 
@@ -67,6 +85,9 @@ function CreateBoard() {
       Alert.alert("エラー", "投稿に失敗しました。");
     }
   };
+
+  // 👇 表示用（ここ重要）
+  const selectedPerson = people.find(p => p.id === selectedPersonId);
 
   return (
     <View style={{ flex: 1,padding: 16 }}>
@@ -80,13 +101,49 @@ function CreateBoard() {
                 mode="outlined"
                 style={{ marginTop: 10 }}
             />
-            <TextInput
-                label="Email"
-                value={femail}
-                onChangeText={setFemail}
-                mode="outlined"
-                style={{ marginTop: 10 }}
-            />
+            <Text style={{ color: 'red' }}>
+              {!fmsg?.trim() && "メッセージを入力してください"}
+            </Text>
+            {/* 👇 ユーザー選択 */}
+            <List.Accordion
+                title={selectedPersonId
+                        ? people.find(p => p.id === selectedPersonId)?.name
+                        : "ユーザー選択"
+                }
+                expanded={expanded}
+                onPress={() => setExpanded(!expanded)}
+            >
+            {/*<List.Subheader>ユーザー選択</List.Subheader> */}
+
+                {people.map((p) => (
+                    <List.Item
+                        key={p.id}
+                        title={p.name}
+                        description={p.email}
+                        onPress={() => {
+                            console.log("選択:", p.name); // 👈 追加
+                            //setSelectedPerson(p);   // 👈 これ追加
+                            console.log("selectedPerson:", selectedPerson);
+                            setSelectedPersonId(p.id);
+                            setExpanded(false); // 選択後にアコーディオンを閉じる
+                        }}
+                        left={(props) => (
+                            <List.Icon
+                            {...props}
+                            icon={selectedPersonId === p.id ? "check-circle" : "account"}
+                            />
+                        )}
+                        style={{
+                            backgroundColor:
+                            selectedPersonId === p.id ? "#e3f2fd" : "transparent",
+                        }}
+                    />
+                ))}
+            {/*</List.Section>*/}
+            </List.Accordion>
+            <Text style={{ color: 'red' }}>
+                {!selectedPersonId && "ユーザーを選択してください"}
+            </Text>
             <TextInput
                 label="Image URL"
                 value={fimg}
@@ -99,8 +156,9 @@ function CreateBoard() {
                 mode="contained"
                 onPress={onCreate}
                 style={{ marginTop: 20 }}
+                disabled={!fmsg || fmsg.trim() === ""|| !selectedPersonId}
             >
-            Create
+            投稿
             </Button>
 
             {/* 画面遷移（Create → List）ボタン */}
